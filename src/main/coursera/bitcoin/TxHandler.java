@@ -1,5 +1,9 @@
 package main.coursera.bitcoin;
 
+import java.util.ArrayList;
+
+import main.coursera.bitcoin.Transaction.Output;
+
 public class TxHandler {
 
     /**
@@ -7,8 +11,10 @@ public class TxHandler {
      * {@code utxoPool}. This should make a copy of utxoPool by using the UTXOPool(UTXOPool uPool)
      * constructor.
      */
+	UTXOPool txHandlerPool;
     public TxHandler(UTXOPool utxoPool) {
         // IMPLEMENT THIS
+    	txHandlerPool = new UTXOPool(utxoPool);
     }
 
     /**
@@ -20,8 +26,32 @@ public class TxHandler {
      * (5) the sum of {@code tx}s input values is greater than or equal to the sum of its output
      *     values; and false otherwise.
      */
+    public boolean allOutputsCurrentUTXOpool(Transaction tx) {
+    	//Outputs for the transaction to be validated
+    	ArrayList<Output> outputTx = tx.getOutputs();
+    	//All UTXOs in the pool
+    	ArrayList<UTXO> allUTXO = txHandlerPool.getAllUTXO();
+    	//Build a list of all outputs in the pool
+    	ArrayList<Output> allUTXOOutput = new ArrayList<Output>();
+   		for (UTXO utxo : allUTXO ) {
+   				allUTXOOutput.add(txHandlerPool.getTxOutput(utxo));
+    	}
+   		// If the list of outputs of the transaction is a subset 
+   		//of the list of all outputs in the pool, then returns true
+   		boolean isSubset = allUTXOOutput.containsAll(outputTx);
+   		if (isSubset) {
+   			return true;
+   		}
+   		else {
+   			return false;
+   		}
+   		
+    }
+    
     public boolean isValidTx(Transaction tx) {
         // IMPLEMENT THIS
+    	// all outputs claimed by {@code tx} are in the current UTXO pool
+    	
     	return true;
     }
 
