@@ -2,7 +2,9 @@ package main.coursera.bitcoin;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import main.coursera.bitcoin.Transaction.Input;
@@ -44,12 +46,7 @@ public class TxHandler {
    		// If the list of outputs of the transaction is a subset 
    		//of the list of all outputs in the pool, then returns true
    		boolean isSubset = allUTXOOutput.containsAll(outputTx);
-   		if (isSubset) {
-   			return true;
-   		}
-   		else {
-   			return false;
-   		}
+   		return isSubset;
    		
     }
     
@@ -97,6 +94,55 @@ public class TxHandler {
     		}
     	}
     	return true;
+    }
+    
+    public boolean sumOfInputsGreaterThanSumOfOutputs(Transaction tx) {
+    	//Inputs for the transaction to be validated
+    	ArrayList<Input> inputTx = tx.getInputs();
+    	//Outputs for the transaction to be validated
+    	ArrayList<Output> outputTx = tx.getOutputs();
+    	
+    	//Hash all outputs in the pool
+    	HashMap<UTXO, Output> txHandlerPoolH = txHandlerPool.getH();
+    	HashMap<Double, byte[]> poolValuesAndHash = new HashMap<Double, byte[]>();
+
+    	for(Map.Entry<UTXO, Output> entry : txHandlerPoolH.entrySet()) {
+    	    double outputValue = entry.getValue().value;
+    		byte[] outputHash = entry.getKey().getTxHash();
+    		poolValuesAndHash.put(outputValue, outputHash);
+    	}
+
+    	//Get the hashes of the previous transaction for each input
+    	ArrayList<byte[]> allInputsprevHash = new ArrayList<byte[]>();
+    	for (Input input : inputTx) {
+    		allInputsprevHash.add(input.prevTxHash);
+    	}
+    	
+    	//Find which transactions in the pool are used as inputs
+    	//Sum the outputs of those transactions, which are Inputs to the current tx
+    	double sumInputs = 0.0;
+    	for(Map.Entry<Double, byte[]> entry : poolValuesAndHash.entrySet()) {
+    		for (byte[] inputHash : allInputsprevHash) {
+    			if (inputHash == entry.getValue()) {
+    				sumInputs += entry.getKey();
+    			}
+    		}
+    	} 
+    	
+    	//Sum the output of tx
+    	double sumOutputs = 0.0;
+    	for (Output output : outputTx) {
+    		sumOutputs += output.value;
+    	}
+    	
+    	//Compare the two
+    	if (sumInputs < sumOutputs) {
+    		return false;
+    	}
+    	else {
+    		return true;
+    	}
+    	
     }
     
     
