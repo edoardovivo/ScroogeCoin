@@ -88,6 +88,17 @@ public class TxHandler {
     	
     }
     
+    public boolean nonNegativeOutputs(Transaction tx) {
+    	//Outputs for the transaction to be validated
+    	ArrayList<Output> outputTx = tx.getOutputs();
+    	for (Output output : outputTx) {
+    		if (output.value < 0) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
     
     public boolean isValidTx(Transaction tx) {
         // IMPLEMENT THIS
