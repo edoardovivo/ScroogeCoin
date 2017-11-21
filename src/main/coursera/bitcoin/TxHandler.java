@@ -1,8 +1,11 @@
 package main.coursera.bitcoin;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 
+import main.coursera.bitcoin.Transaction.Input;
 import main.coursera.bitcoin.Transaction.Output;
+import main.coursera.bitcoin.Crypto;
 
 public class TxHandler {
 
@@ -47,6 +50,26 @@ public class TxHandler {
    		}
    		
     }
+    
+    public boolean allInputsSignaturesValid(Transaction tx) {
+    	//Inputs for the transaction to be validated
+    	ArrayList<Input> inputTx = tx.getInputs();
+    	//Outputs for the transaction to be validated
+    	ArrayList<Output> outputTx = tx.getOutputs();
+    	
+    	byte[] rawData;
+    	PublicKey publicKey;
+    	for (int i=0; i < tx.numInputs();i++) {
+    		rawData = tx.getRawDataToSign(i);
+    		publicKey = outputTx.get(i).address;
+    		if (!Crypto.verifySignature(publicKey, rawData, inputTx.get(i).signature)) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
+    
     
     public boolean isValidTx(Transaction tx) {
         // IMPLEMENT THIS
