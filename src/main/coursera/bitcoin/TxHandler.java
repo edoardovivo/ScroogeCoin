@@ -2,6 +2,8 @@ package main.coursera.bitcoin;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import main.coursera.bitcoin.Transaction.Input;
 import main.coursera.bitcoin.Transaction.Output;
@@ -69,6 +71,22 @@ public class TxHandler {
     	return true;
     }
     
+    public boolean noUTXOMultipleTimes(Transaction tx) {
+    	//Inputs for the transaction to be validated
+    	ArrayList<Input> inputTx = tx.getInputs();
+    	
+    	//Simply check if there are duplicated inputs
+    	Set<Input> setInputTx = new HashSet<Input>(inputTx);
+
+    	if(setInputTx.size() < inputTx.size()){
+    	    // There are duplicates
+    		return false;
+    	}
+    	else {
+    		return true;
+    	}
+    	
+    }
     
     
     public boolean isValidTx(Transaction tx) {
