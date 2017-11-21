@@ -104,12 +104,11 @@ public class TxHandler {
     	
     	//Hash all outputs in the pool
     	HashMap<UTXO, Output> txHandlerPoolH = txHandlerPool.getH();
-    	HashMap<Double, byte[]> poolValuesAndHash = new HashMap<Double, byte[]>();
+    	HashMap<UTXO, byte[]> poolValuesAndHash = new HashMap<UTXO, byte[]>();
 
     	for(Map.Entry<UTXO, Output> entry : txHandlerPoolH.entrySet()) {
-    	    double outputValue = entry.getValue().value;
-    		byte[] outputHash = entry.getKey().getTxHash();
-    		poolValuesAndHash.put(outputValue, outputHash);
+    	    byte[] outputHash = entry.getKey().getTxHash();
+    		poolValuesAndHash.put(entry.getKey(), outputHash);
     	}
 
     	//Get the hashes of the previous transaction for each input
@@ -119,14 +118,21 @@ public class TxHandler {
     	}
     	
     	//Find which transactions in the pool are used as inputs
-    	//Sum the outputs of those transactions, which are Inputs to the current tx
-    	double sumInputs = 0.0;
-    	for(Map.Entry<Double, byte[]> entry : poolValuesAndHash.entrySet()) {
+    	HashMap<UTXO, byte[]> poolValuesAndHashUsedInTx = new HashMap<UTXO, byte[]>();
+    	for(Map.Entry<UTXO, byte[]> entry : poolValuesAndHash.entrySet()) {
     		for (byte[] inputHash : allInputsprevHash) {
     			if (inputHash == entry.getValue()) {
-    				sumInputs += entry.getKey();
+    				poolValuesAndHashUsedInTx.put(entry.getKey(), 
+    						entry.getValue());
     			}
     		}
+    	}
+    	//Sum the outputs of those transactions, which are Inputs to the current tx
+    	double sumInputs = 0.0;
+    	for(Map.Entry<UTXO, byte[]> entry : poolValuesAndHashUsedInTx.entrySet()) {
+    		UTXO utxo = entry.getKey();
+    		Output output = txHandlerPool.getTxOutput(utxo);
+    		sumInputs += output.value;
     	} 
     	
     	//Sum the output of tx
