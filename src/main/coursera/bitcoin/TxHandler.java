@@ -54,15 +54,21 @@ public class TxHandler {
     	//Outputs for the transaction to be validated
     	ArrayList<Output> outputTx = tx.getOutputs();
     	
+    	
     	byte[] rawData;
     	PublicKey publicKey;
+    	UTXO utxo;
+    	Output output;
     	for (int i=0; i < tx.numInputs();i++) {
     		rawData = tx.getRawDataToSign(i);
-    		publicKey = outputTx.get(i).address;
+    		utxo = new UTXO(inputTx.get(i).prevTxHash, inputTx.get(i).outputIndex);
+    		output = txHandlerPool.getTxOutput(utxo);
+    		publicKey = output.address;
     		if (!Crypto.verifySignature(publicKey, rawData, inputTx.get(i).signature)) {
     			return false;
     		}
     	}
+    	
     	return true;
     }
     
