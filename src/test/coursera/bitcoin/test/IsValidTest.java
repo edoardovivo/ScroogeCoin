@@ -3,6 +3,8 @@ package test.coursera.bitcoin.test;// Copyright (C) 2016-2017 Enrique Albertos
 
 
 import main.coursera.bitcoin.Transaction;
+import main.coursera.bitcoin.Transaction.Input;
+import main.coursera.bitcoin.Transaction.Output;
 import main.coursera.bitcoin.TxHandler;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +32,21 @@ import org.junit.Test;
 
 public class IsValidTest {
 	
+	private static void printInputs(Transaction tx) {
+		for (Input input: tx.getInputs()) {
+			System.out.println("prevHash: " + input.prevTxHash);
+			System.out.println("Signature: " + input.signature);
+			System.out.println("OutputIndex: " + input.outputIndex);
+		}
+	}
+	
+	private static void printOutputs(Transaction tx) {
+		for (Output output: tx.getOutputs()) {
+			System.out.println("Value: " + output.value);
+			System.out.println("Address: " + output.address);;
+		}
+	}
+	
 	private static void assertTestSetIsValid(final UtxoTestSet utxoTestSet) {
 		final ValidationLists<Transaction> trxsValidation = utxoTestSet.getValidationLists();
 		
@@ -38,6 +55,8 @@ public class IsValidTest {
 		
 		// Check validation of all the transactions in the set
 		for (Transaction tx: trxsValidation.allElements()) {
+			//printInputs(tx);
+			//printOutputs(tx);
 			assertEquals(txHandler.isValidTx(tx), trxsValidation.isValid(tx) );
 		}
 	}

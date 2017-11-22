@@ -34,19 +34,17 @@ public class TxHandler {
      *     values; and false otherwise.
      */
     public boolean allOutputsCurrentUTXOpool(Transaction tx) {
-    	//Outputs for the transaction to be validated
-    	ArrayList<Output> outputTx = tx.getOutputs();
-    	//All UTXOs in the pool
-    	ArrayList<UTXO> allUTXO = txHandlerPool.getAllUTXO();
-    	//Build a list of all outputs in the pool
-    	ArrayList<Output> allUTXOOutput = new ArrayList<Output>();
-   		for (UTXO utxo : allUTXO ) {
-   				allUTXOOutput.add(txHandlerPool.getTxOutput(utxo));
+
+    	//Inputs for the transaction to be validated
+    	ArrayList<Input> inputTx = tx.getInputs();
+
+    	UTXO utxo;
+    	for (Input input: inputTx) {
+    		utxo = new UTXO(input.prevTxHash, input.outputIndex);
+	    	if (!txHandlerPool.contains(utxo)) return false;
     	}
-   		// If the list of outputs of the transaction is a subset 
-   		//of the list of all outputs in the pool, then returns true
-   		boolean isSubset = allUTXOOutput.containsAll(outputTx);
-   		return isSubset;
+
+    	return true;
    		
     }
     
@@ -157,6 +155,7 @@ public class TxHandler {
     	// all outputs claimed by {@code tx} are in the current UTXO pool
     	boolean isValidTx = allOutputsCurrentUTXOpool(tx) && allInputsSignaturesValid(tx) &&
     			noUTXOMultipleTimes(tx) && nonNegativeOutputs(tx) && sumOfInputsGreaterThanSumOfOutputs(tx);
+    	System.out.println(allInputsSignaturesValid(tx));
     	return isValidTx;
     }
 
