@@ -55,8 +55,6 @@ public class IsValidTest {
 		
 		// Check validation of all the transactions in the set
 		for (Transaction tx: trxsValidation.allElements()) {
-			//printInputs(tx);
-			//printOutputs(tx);
 			assertEquals(txHandler.isValidTx(tx), trxsValidation.isValid(tx) );
 		}
 	}

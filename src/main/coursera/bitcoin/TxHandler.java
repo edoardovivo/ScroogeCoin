@@ -76,10 +76,20 @@ public class TxHandler {
     	//Inputs for the transaction to be validated
     	ArrayList<Input> inputTx = tx.getInputs();
     	
+    	UTXO utxo;
+    	Output output;
+    	ArrayList<Output> utxoOutputsClaimed = new ArrayList<Output>();
+    	for (Input input: inputTx) {
+    		utxo = new UTXO(input.prevTxHash, input.outputIndex);
+    		output = txHandlerPool.getTxOutput(utxo);
+    		utxoOutputsClaimed.add(output);
+    	}
+    	
+    	
     	//Simply check if there are duplicated inputs
-    	Set<Input> setInputTx = new HashSet<Input>(inputTx);
+    	Set<Output> setUtxoOutputsClaimed = new HashSet<Output>(utxoOutputsClaimed);
 
-    	if(setInputTx.size() < inputTx.size()){
+    	if(setUtxoOutputsClaimed.size() < utxoOutputsClaimed.size()){
     	    // There are duplicates
     		return false;
     	}
@@ -132,7 +142,7 @@ public class TxHandler {
     	// all outputs claimed by {@code tx} are in the current UTXO pool
     	boolean isValidTx = allOutputsCurrentUTXOpool(tx) && allInputsSignaturesValid(tx) &&
     			noUTXOMultipleTimes(tx) && nonNegativeOutputs(tx) && sumOfInputsGreaterThanSumOfOutputs(tx);
-    	//System.out.println(sumOfInputsGreaterThanSumOfOutputs(tx));
+    	System.out.println(noUTXOMultipleTimes(tx));
     	return isValidTx;
     }
 
