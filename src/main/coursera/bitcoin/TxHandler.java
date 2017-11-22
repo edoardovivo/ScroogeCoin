@@ -155,8 +155,9 @@ public class TxHandler {
     public boolean isValidTx(Transaction tx) {
         // IMPLEMENT THIS
     	// all outputs claimed by {@code tx} are in the current UTXO pool
-    	
-    	return true;
+    	boolean isValidTx = allOutputsCurrentUTXOpool(tx) && allInputsSignaturesValid(tx) &&
+    			noUTXOMultipleTimes(tx) && nonNegativeOutputs(tx) && sumOfInputsGreaterThanSumOfOutputs(tx);
+    	return isValidTx;
     }
 
     /**
