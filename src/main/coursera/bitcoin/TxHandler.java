@@ -178,7 +178,7 @@ public class TxHandler {
     	}
     	   	
 
-    	return eturn refinedPossibleTxs.toArray(new Transaction[refinedPossibleTxs.size()]);
+    	return refinedPossibleTxs.toArray(new Transaction[refinedPossibleTxs.size()]);
     }
 
 }
