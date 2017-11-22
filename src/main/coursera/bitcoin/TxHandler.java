@@ -166,8 +166,38 @@ public class TxHandler {
      * updating the current UTXO pool as appropriate.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
-        // IMPLEMENT THIS
-    	return possibleTxs;
+        // Check that each transaction is valid
+    	ArrayList<Transaction> refinedPossibleTxs = new ArrayList<Transaction>();
+    	for (Transaction tx : possibleTxs) {
+    		if (isValidTx(tx)) {
+    			refinedPossibleTxs.add(tx);
+    		}
+    	}
+    	// Check that there are no double spends, i.e among all the 
+    	// remaining transactions, there shouldn't be any two who share the same input
+    	Transaction tx1, tx2;
+    	ArrayList<Transaction> excludedTxs = new ArrayList<Transaction>();
+    	ArrayList<Input> inputs1 = new ArrayList<Input>();
+    	ArrayList<Input> inputs2 = new ArrayList<Input>();
+    	for (int i=0; i < refinedPossibleTxs.size(); i++) {
+    		tx1 = refinedPossibleTxs.get(i);
+    		inputs1 = tx1.getInputs();
+    		for (int j=i+1; j<refinedPossibleTxs.size(); j++) {
+    			tx2 = refinedPossibleTxs.get(i);
+    			inputs2 = tx2.getInputs();
+    			//Check if any input in input1 is also in input2
+    			inputs2.retainAll(inputs1);
+    			// If so, exclude the second transaction
+    			if (inputs2.size() > 0) {
+    				excludedTxs.add(tx2);
+    			}
+    		}
+    	}
+    	
+    	//Exclude the transactions
+    	refinedPossibleTxs.removeAll(excludedTxs);
+    	
+    	return refinedPossibleTxs.toArray(new Transaction[refinedPossibleTxs.size()]);
     }
 
 }
