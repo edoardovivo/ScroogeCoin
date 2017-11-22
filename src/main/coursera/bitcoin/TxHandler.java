@@ -122,7 +122,7 @@ public class TxHandler {
     	//Sum of inputs
     	UTXO utxo;
     	Output output;
-    	int sumInputs = 0;
+    	double sumInputs = 0.0;
     	for (Input input: inputTx) {
     		utxo = new UTXO(input.prevTxHash, input.outputIndex);
     		output = txHandlerPool.getTxOutput(utxo);
@@ -130,7 +130,7 @@ public class TxHandler {
     	}
     	
     	//Sum of outputs
-    	int sumOutputs = 0;
+    	double sumOutputs = 0;
     	for (Output op : outputTx) {
     		sumOutputs += op.value;
     	}
@@ -159,37 +159,26 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         // Check that each transaction is valid
-    	ArrayList<Transaction> refinedPossibleTxs = new ArrayList<Transaction>();
+    	ArrayList<Transaction> refinedPossibleTxs = new ArrayList<>();
+    	HashMap<UTXO, Output> utxoOutputsClaimed = new HashMap<UTXO, Output>();
     	for (Transaction tx : possibleTxs) {
     		if (isValidTx(tx)) {
+    			//For each valid transaction, updates pool
     			refinedPossibleTxs.add(tx);
+    			for (Transaction.Input in : tx.getInputs()) {
+                    UTXO utxo = new UTXO(in.prevTxHash, in.outputIndex);
+                    txHandlerPool.removeUTXO(utxo);
+                }
+                for (int i = 0; i < tx.numOutputs(); i++) {
+                    Transaction.Output out = tx.getOutput(i);
+                    UTXO utxo = new UTXO(tx.getHash(), i);
+                    txHandlerPool.addUTXO(utxo, out);
+                }
     		}
     	}
-    	// Check that there are no double spends, i.e among all the 
-    	// remaining transactions, there shouldn't be any two who share the same input
-    	Transaction tx1, tx2;
-    	ArrayList<Transaction> excludedTxs = new ArrayList<Transaction>();
-    	ArrayList<Input> inputs1 = new ArrayList<Input>();
-    	ArrayList<Input> inputs2 = new ArrayList<Input>();
-    	for (int i=0; i < refinedPossibleTxs.size(); i++) {
-    		tx1 = refinedPossibleTxs.get(i);
-    		inputs1 = tx1.getInputs();
-    		for (int j=i+1; j<refinedPossibleTxs.size(); j++) {
-    			tx2 = refinedPossibleTxs.get(i);
-    			inputs2 = tx2.getInputs();
-    			//Check if any input in input1 is also in input2
-    			inputs2.retainAll(inputs1);
-    			// If so, exclude the second transaction
-    			if (inputs2.size() > 0) {
-    				excludedTxs.add(tx2);
-    			}
-    		}
-    	}
-    	
-    	//Exclude the transactions
-    	refinedPossibleTxs.removeAll(excludedTxs);
-    	
-    	return refinedPossibleTxs.toArray(new Transaction[refinedPossibleTxs.size()]);
+    	   	
+
+    	return eturn refinedPossibleTxs.toArray(new Transaction[refinedPossibleTxs.size()]);
     }
 
 }
