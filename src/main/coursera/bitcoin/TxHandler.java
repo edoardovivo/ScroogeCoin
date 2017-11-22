@@ -88,7 +88,10 @@ public class TxHandler {
     	
     	//Simply check if there are duplicated inputs
     	Set<Output> setUtxoOutputsClaimed = new HashSet<Output>(utxoOutputsClaimed);
-
+    	
+    	//System.out.println("Set size: " + setUtxoOutputsClaimed.size());
+    	//System.out.println("List size: " + utxoOutputsClaimed.size());
+    	
     	if(setUtxoOutputsClaimed.size() < utxoOutputsClaimed.size()){
     	    // There are duplicates
     		return false;
@@ -132,6 +135,9 @@ public class TxHandler {
     		sumOutputs += op.value;
     	}
     	
+    	//System.out.println("SumInputs: " + sumInputs);
+    	//System.out.println("SumOutputs: " + sumOutputs);
+    	
     	return (sumInputs >= sumOutputs);
 
     }
@@ -142,7 +148,7 @@ public class TxHandler {
     	// all outputs claimed by {@code tx} are in the current UTXO pool
     	boolean isValidTx = allOutputsCurrentUTXOpool(tx) && allInputsSignaturesValid(tx) &&
     			noUTXOMultipleTimes(tx) && nonNegativeOutputs(tx) && sumOfInputsGreaterThanSumOfOutputs(tx);
-    	System.out.println(noUTXOMultipleTimes(tx));
+    	//System.out.println(allOutputsCurrentUTXOpool(tx));
     	return isValidTx;
     }
 
