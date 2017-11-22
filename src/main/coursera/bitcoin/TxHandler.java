@@ -106,53 +106,24 @@ public class TxHandler {
     	//Outputs for the transaction to be validated
     	ArrayList<Output> outputTx = tx.getOutputs();
     	
-    	//Hash all outputs in the pool
-    	HashMap<UTXO, Output> txHandlerPoolH = txHandlerPool.getH();
-    	HashMap<UTXO, byte[]> poolValuesAndHash = new HashMap<UTXO, byte[]>();
-
-    	for(Map.Entry<UTXO, Output> entry : txHandlerPoolH.entrySet()) {
-    	    byte[] outputHash = entry.getKey().getTxHash();
-    		poolValuesAndHash.put(entry.getKey(), outputHash);
-    	}
-
-    	//Get the hashes of the previous transaction for each input
-    	ArrayList<byte[]> allInputsprevHash = new ArrayList<byte[]>();
-    	for (Input input : inputTx) {
-    		allInputsprevHash.add(input.prevTxHash);
-    	}
-    	
-    	//Find which transactions in the pool are used as inputs
-    	HashMap<UTXO, byte[]> poolValuesAndHashUsedInTx = new HashMap<UTXO, byte[]>();
-    	for(Map.Entry<UTXO, byte[]> entry : poolValuesAndHash.entrySet()) {
-    		for (byte[] inputHash : allInputsprevHash) {
-    			if (inputHash == entry.getValue()) {
-    				poolValuesAndHashUsedInTx.put(entry.getKey(), 
-    						entry.getValue());
-    			}
-    		}
-    	}
-    	//Sum the outputs of those transactions, which are Inputs to the current tx
-    	double sumInputs = 0.0;
-    	for(Map.Entry<UTXO, byte[]> entry : poolValuesAndHashUsedInTx.entrySet()) {
-    		UTXO utxo = entry.getKey();
-    		Output output = txHandlerPool.getTxOutput(utxo);
+    	//Sum of inputs
+    	UTXO utxo;
+    	Output output;
+    	int sumInputs = 0;
+    	for (Input input: inputTx) {
+    		utxo = new UTXO(input.prevTxHash, input.outputIndex);
+    		output = txHandlerPool.getTxOutput(utxo);
     		sumInputs += output.value;
-    	} 
-    	
-    	//Sum the output of tx
-    	double sumOutputs = 0.0;
-    	for (Output output : outputTx) {
-    		sumOutputs += output.value;
     	}
     	
-    	//Compare the two
-    	if (sumInputs < sumOutputs) {
-    		return false;
-    	}
-    	else {
-    		return true;
+    	//Sum of outputs
+    	int sumOutputs = 0;
+    	for (Output op : outputTx) {
+    		sumOutputs += op.value;
     	}
     	
+    	return (sumInputs >= sumOutputs);
+
     }
     
     
@@ -161,7 +132,7 @@ public class TxHandler {
     	// all outputs claimed by {@code tx} are in the current UTXO pool
     	boolean isValidTx = allOutputsCurrentUTXOpool(tx) && allInputsSignaturesValid(tx) &&
     			noUTXOMultipleTimes(tx) && nonNegativeOutputs(tx) && sumOfInputsGreaterThanSumOfOutputs(tx);
-    	System.out.println(allInputsSignaturesValid(tx));
+    	//System.out.println(sumOfInputsGreaterThanSumOfOutputs(tx));
     	return isValidTx;
     }
 
