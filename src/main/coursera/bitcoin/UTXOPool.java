@@ -53,4 +53,10 @@ public class UTXOPool {
         }
         return allUTXO;
     }
+    
+    public HashMap<UTXO, Transaction.Output> getH (){
+    	return H;
+    }
+    
+    
 }
